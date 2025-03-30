@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD Continuous Performance Task</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #333;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 60px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 85%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        #stimulus {
+            font-size: 120px;
+            font-weight: 700;
+            margin: 40px 0;
+            width: 200px;
+            height: 200px;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            margin: 20px;
+            cursor: pointer;
+            width: 250px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
+
+        button.hidden {
+            display: none;
+        }
+
+        .back-btn {
+            background-color: #e63946;
+            width: 250px;
+        }
+
+        .back-btn:hover {
+            background-color: #d62939;
+        }
+
+        #instructionsPage {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 85%;
+            max-width: 700px;
+            margin-top: 30px;
+        }
+
+        .instruction-text {
+            font-size: 18px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 25px;
+            font-size: 18px;
+        }
+
+        #results {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            margin-top: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            text-align: left;
+            width: 85%;
+            max-width: 700px;
+        }
+
+        #results h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .result-item {
+            font-size: 18px;
+            color: #333;
+            margin: 12px 0;
+        }
+
+        .continue-btn {
+            background-color: #333;
+            color: #fff;
+            width: 250px;
+        }
+
+        .continue-btn:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Task Page -->
+    <div id="mainTaskPage" class="container">
+        <h1>ADHD Continuous Performance Task</h1>
+        <button id="instructionBtn">View Instructions</button>
+        <button id="startBtn" class="hidden">Start Task</button>
+        <div id="stimulus" class="hidden"></div>
+        <div class="hidden">
+            <button id="correctBtn" class="hidden">Correct</button>
+            <button id="incorrectBtn" class="hidden">Incorrect</button>
+        </div>
+    </div>
+
+    <!-- Instructions Page -->
+    <div id="instructionsPage" class="hidden">
+        <h1>Instructions</h1>
+        <div class="instruction-text">
+            <p>Welcome to the ADHD Continuous Performance Task (CPT). Your goal is to react quickly and accurately to specific stimuli.</p>
+            <ul>
+                <li><strong>'X'</strong> - Target stimulus. Respond with "Correct".</li>
+                <li><strong>'O'</strong> - Non-target stimulus. Respond with "Incorrect".</li>
+            </ul>
+            <p>Please focus on responding quickly when you see the target stimulus.</p>
+        </div>
+        <button id="continueBtn" class="continue-btn">Continue</button>
+        <button id="backBtn" class="back-btn">Back to Main Menu</button>
+    </div>
+
+    <!-- Results Page -->
+    <div id="results" class="container">
+        <h2>Results</h2>
+        <p id="correctResponses" class="result-item">Correct Responses: 0</p>
+        <p id="reactionTime" class="result-item">Average Reaction Time: 0ms</p>
+        <p id="errorRate" class="result-item">Error Rate: 0%</p>
+        <p id="impulsivity" class="result-item">Impulsivity: 0</p>
+        <p id="variability" class="result-item">Response Variability: 0%</p>
+        <p id="adhdProbability" class="result-item">ADHD Probability: 0%</p>
+        <div>
+            <button id="continueBtnResults" class="continue-btn">Try Again</button>
+            <button id="backBtnResults" class="back-btn">Back to Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const stimulusElement = document.getElementById("stimulus");
+        const startBtn = document.getElementById("startBtn");
+        const correctBtn = document.getElementById("correctBtn");
+        const incorrectBtn = document.getElementById("incorrectBtn");
+        const correctResponsesText = document.getElementById("correctResponses");
+        const reactionTimeText = document.getElementById("reactionTime");
+        const errorRateText = document.getElementById("errorRate");
+        const impulsivityText = document.getElementById("impulsivity");
+        const variabilityText = document.getElementById("variability");
+        const adhdProbabilityText = document.getElementById("adhdProbability");
+        const resultsSection = document.getElementById("results");
+        const instructionBtn = document.getElementById("instructionBtn");
+        const instructionPage = document.getElementById("instructionsPage");
+        const mainTaskPage = document.getElementById("mainTaskPage");
+        const continueBtn = document.getElementById("continueBtn");
+        const backBtn = document.getElementById("backBtn");
+        const continueBtnResults = document.getElementById("continueBtnResults");
+        const backBtnResults = document.getElementById("backBtnResults");
+
+        let stimuliSequence = [];
+        let correctResponses = 0;
+        let incorrectResponses = 0;
+        let impulsiveErrors = 0;
+        let missedTargets = 0;
+        let reactionTimes = [];
+        let totalStimuli = 30;
+        let stimulusInterval = 1000;
+
+        const stimuli = ['X', 'O'];
+
+        function generateStimuli() {
+            stimuliSequence = [];
+            for (let i = 0; i < totalStimuli; i++) {
+                stimuliSequence.push(stimuli[Math.floor(Math.random() * stimuli.length)]);
+            }
+        }
+
+        function displayStimulus() {
+            if (stimuliSequence.length === 0) {
+                endTask();
+                return;
+            }
+
+            const currentStimulus = stimuliSequence.shift();
+            stimulusElement.textContent = currentStimulus;
+
+            const startTime = Date.now();
+
+            setTimeout(() => {
+                stimulusElement.textContent = "";
+                if (reactionTimes.length === 0 || currentStimulus === 'X') {
+                    missedTargets++;
+                }
+            }, stimulusInterval);
+
+            correctBtn.classList.remove("hidden");
+            incorrectBtn.classList.remove("hidden");
+
+            correctBtn.onclick = function () {
+                const reactionTime = Date.now() - startTime;
+                reactionTimes.push(reactionTime);
+
+                if (currentStimulus === 'X') {
+                    correctResponses++;
+                } else {
+                    impulsiveErrors++;
+                }
+
+                hideButtons();
+                displayStimulus();
+            };
+
+            incorrectBtn.onclick = function () {
+                const reactionTime = Date.now() - startTime;
+                reactionTimes.push(reactionTime);
+
+                if (currentStimulus === 'X') {
+                    missedTargets++;
+                } else {
+                    incorrectResponses++;
+                }
+
+                hideButtons();
+                displayStimulus();
+            };
+        }
+
+        function hideButtons() {
+            correctBtn.classList.add("hidden");
+            incorrectBtn.classList.add("hidden");
+        }
+
+        function endTask() {
+            const totalTime = reactionTimes.reduce((sum, time) => sum + time, 0);
+            const averageReactionTime = totalTime / reactionTimes.length;
+            const errorRate = (incorrectResponses + missedTargets) / totalStimuli * 100;
+            const impulsivity = impulsiveErrors / totalStimuli * 100;
+            const adhdProbability = (impulsivity + errorRate) / 2;
+
+            correctResponsesText.textContent = `Correct Responses: ${correctResponses}`;
+            reactionTimeText.textContent = `Average Reaction Time: ${averageReactionTime.toFixed(2)}ms`;
+            errorRateText.textContent = `Error Rate: ${errorRate.toFixed(2)}%`;
+            impulsivityText.textContent = `Impulsivity: ${impulsivity.toFixed(2)}%`;
+            variabilityText.textContent = `Response Variability: ${standardDeviation(reactionTimes).toFixed(2)}%`;
+            adhdProbabilityText.textContent = `ADHD Probability: ${adhdProbability.toFixed(2)}%`;
+
+            resultsSection.style.display = "block";
+            mainTaskPage.style.display = "none";
+        }
+
+        function standardDeviation(arr) {
+            const mean = arr.reduce((sum, value) => sum + value, 0) / arr.length;
+            const squaredDifferences = arr.map(value => Math.pow(value - mean, 2));
+            return Math.sqrt(squaredDifferences.reduce((sum, value) => sum + value, 0) / arr.length);
+        }
+
+        instructionBtn.onclick = () => {
+            mainTaskPage.style.display = "none";
+            instructionPage.style.display = "block";
+        };
+
+        continueBtn.onclick = () => {
+            instructionPage.style.display = "none";
+            mainTaskPage.style.display = "block";
+            instructionBtn.classList.add("hidden");
+            startBtn.classList.remove("hidden");
+        };
+
+        startBtn.onclick = () => {
+            generateStimuli();
+            startBtn.classList.add("hidden");
+            displayStimulus();
+        };
+
+        backBtn.onclick = () => {
+            instructionPage.style.display = "none";
+            mainTaskPage.style.display = "block";
+        };
+
+        continueBtnResults.onclick = () => {
+            resultsSection.style.display = "none";
+            mainTaskPage.style.display = "block";
+            generateStimuli();  // Restart the task from the beginning.
+            displayStimulus();
+        };
+
+        backBtnResults.onclick = () => {
+            resultsSection.style.display = "none";
+            mainTaskPage.style.display = "block";
+        };
+    </script>
+
+</body>
+</html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
